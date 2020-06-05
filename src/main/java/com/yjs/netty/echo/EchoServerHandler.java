@@ -1,14 +1,16 @@
 package com.yjs.netty.echo;
 
+import com.yjs.netty.util.CommonUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * <pre>
- *
+ *		服务端处理器
  * </pre>
  *
  * @author yangjs
@@ -21,29 +23,35 @@ public class EchoServerHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-		log.info("通道已经注册,context -> {}" , ctx);
+		log.info("服务端通道已经注册");
 	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		log.info("通道已经激活,context -> {}" , ctx.toString());
+		log.info("服务端通道已经激活");
 
 	}
 
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		ByteBuf byteBuf = (ByteBuf) msg;
+		String str = CommonUtil.convertByteBufToString(byteBuf);
+		log.info("服务端读取数据,,msg -> {}" , str);
+		ctx.writeAndFlush(byteBuf);
 
-		ByteBuf msgCast = (ByteBuf) msg;
-		log.info("读取数据,context -> {},msg -> {}" , ctx.toString(), msg);
-		ctx.writeAndFlush(msg);
 	}
 
+//	@Override
+//	protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
+//		log.info("服务端读取数据,context -> {},msg -> {}" , ctx.toString(), msg);
+//		ctx.writeAndFlush(msg);
+//	}
 
 
 	@Override
 	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-		log.info("读取数据完成,context -> {}" , ctx.toString());
+		log.info("服务端读取数据完成");
 	}
 
 
@@ -51,7 +59,7 @@ public class EchoServerHandler extends ChannelInboundHandlerAdapter {
 	@SuppressWarnings("deprecation")
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
 			throws Exception {
-		log.info("读取数据异常,context -> {},cause -> {}" , ctx.toString(), cause.toString());
+		log.info("服务端读取数据异常,cause -> {}" , cause.toString());
 	}
 
 

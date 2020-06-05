@@ -1,12 +1,16 @@
 package com.yjs.netty.echo;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.string.StringEncoder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -24,6 +28,7 @@ public class EchoClient {
 
 	public static final String HOST = "127.0.0.1";
 	public static final int PORT = 9994;
+	public static Channel channel;
 
 	public static void main(String[] args) {
 
@@ -41,15 +46,29 @@ public class EchoClient {
 						protected void initChannel(SocketChannel ch) throws Exception {
 							ChannelPipeline pipeline = ch.pipeline();
 							pipeline.addLast(echoClientInboundHandler);
-							//						pipeline.addLast()
+//							pipeline.addLast(new StringEncoder());
 						}
 					});
 
 			ChannelFuture future = bootstrap.connect(HOST, PORT).sync();
+			log.info("连接到服务端{}:{}",HOST,PORT);
+
+			channel = future.channel();
+			sendMsg();
 			future.channel().closeFuture().sync();
+
+
 		} catch (Exception e) {
 			log.error("客户端异常");
+		} finally {
 			workerGroup.shutdownGracefully();
 		}
+	}
+
+	private static void sendMsg() {
+
+		ByteBuf buffer = Unpooled.buffer();
+		buffer.writeBytes("yangjiangsong".getBytes());
+		channel.writeAndFlush(buffer);
 	}
 }
