@@ -55,7 +55,16 @@ public class EchoClient {
 
 			ChannelFuture future = bootstrap.connect(HOST, PORT).sync();
 			log.info("连接到服务端{}:{}",HOST,PORT);
-
+			future.addListener(new ChannelFutureListener() {
+				@Override
+				public void operationComplete(ChannelFuture future) throws Exception {
+					if (future.isSuccess()) {
+						System.out.println("客户端连接成功");
+					} else {
+						future.cause().printStackTrace();
+					}
+				}
+			});
 			channel = future.channel();
 			sendMsg();
 			future.channel().closeFuture().sync();
