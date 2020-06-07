@@ -2,6 +2,8 @@ package com.yjs.netty.util;
 
 import io.netty.buffer.ByteBuf;
 
+import java.nio.charset.Charset;
+
 /**
  * <pre>
  *
@@ -23,7 +25,7 @@ public final class CommonUtil {
 		} else {
 			byte[] bytes = new byte[buf.readableBytes()];
 			buf.getBytes(buf.readerIndex(), bytes);
-			str = new String(bytes, 0, buf.readableBytes());
+			str = new String(bytes, 0, buf.readableBytes(), Charset.defaultCharset());
 		}
 		return str;
 	}

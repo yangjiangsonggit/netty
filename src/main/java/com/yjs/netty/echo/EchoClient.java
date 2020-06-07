@@ -3,15 +3,17 @@ package com.yjs.netty.echo;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.util.Scanner;
 
 /**
  * <pre>
@@ -29,6 +31,7 @@ public class EchoClient {
 	public static final String HOST = "127.0.0.1";
 	public static final int PORT = 9994;
 	public static Channel channel;
+
 
 	public static void main(String[] args) {
 
@@ -59,16 +62,21 @@ public class EchoClient {
 
 
 		} catch (Exception e) {
-			log.error("客户端异常");
+			log.error("客户端异常",e.fillInStackTrace());
 		} finally {
 			workerGroup.shutdownGracefully();
 		}
 	}
 
 	private static void sendMsg() {
-
-		ByteBuf buffer = Unpooled.buffer();
-		buffer.writeBytes("yangjiangsong".getBytes());
-		channel.writeAndFlush(buffer);
+		System.out.println("请输入消息:");
+		Scanner sc = new Scanner(System.in);
+		String input;
+		while (sc.hasNextLine()) {
+			input = sc.nextLine();
+			ByteBuf buffer = Unpooled.wrappedBuffer(input.getBytes(CharsetUtil.UTF_8));
+			channel.writeAndFlush(buffer);
+		}
+		sc.close();
 	}
 }
