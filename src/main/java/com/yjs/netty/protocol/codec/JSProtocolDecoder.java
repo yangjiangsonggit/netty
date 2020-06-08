@@ -1,8 +1,16 @@
 package com.yjs.netty.protocol.codec;
 
+import com.yjs.netty.protocol.model.JSProtocol;
+import com.yjs.netty.protocol.model.ProtocolHeader;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.TooLongFrameException;
+import io.netty.util.CharsetUtil;
 
 import java.nio.ByteOrder;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * <pre>
@@ -24,9 +32,7 @@ import java.nio.ByteOrder;
  * @since 2020/6/8
  */
 public class JSProtocolDecoder extends LengthFieldBasedFrameDecoder {
-	public JSProtocolDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength) {
-		super(maxFrameLength, lengthFieldOffset, lengthFieldLength);
-	}
+
 
 	public JSProtocolDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength, int lengthAdjustment,
 			int initialBytesToStrip) {
@@ -38,13 +44,40 @@ public class JSProtocolDecoder extends LengthFieldBasedFrameDecoder {
 		super(maxFrameLength, lengthFieldOffset, lengthFieldLength, lengthAdjustment, initialBytesToStrip, failFast);
 	}
 
-	public JSProtocolDecoder(ByteOrder byteOrder, int maxFrameLength, int lengthFieldOffset, int lengthFieldLength,
-			int lengthAdjustment, int initialBytesToStrip, boolean failFast) {
-		super(byteOrder, maxFrameLength, lengthFieldOffset, lengthFieldLength, lengthAdjustment, initialBytesToStrip,
-				failFast);
+
+	@Override
+	protected JSProtocol decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
+		ByteBuf decodeBuf = (ByteBuf) super.decode(ctx, in);
+
+		if (Objects.isNull(decodeBuf)) {
+			return null;
+		}
+
+		if (decodeBuf.readableBytes() < DecoderConstant.HEADER_SIZE) {
+			return null;
+		}
+
+		ProtocolHeader protocolHeader = new ProtocolHeader();
+		protocolHeader.setMagic(decodeBuf.readByte());
+		protocolHeader.setMsgType(decodeBuf.readByte());
+		protocolHeader.setReserve(decodeBuf.readShort());
+		protocolHeader.setSn(decodeBuf.readShort());
+		int len = decodeBuf.readInt();
+		protocolHeader.setLen(len);
+
+		if (decodeBuf.readableBytes() < len) {
+			return null;
+		}
+
+		ByteBuf bodyBuf = decodeBuf.readBytes(len);
+		String body = decodeBuf.toString(CharsetUtil.UTF_8);
+
+		JSProtocol jsProtocol = new JSProtocol();
+		jsProtocol.setProtocolHeader(protocolHeader);
+		jsProtocol.setBody(body);
+
+		System.out.println("服务端解析到消息 -> " + body);
+		return jsProtocol;
 	}
-
-
-
 
 }

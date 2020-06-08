@@ -15,14 +15,14 @@ import lombok.Data;
 public class ProtocolHeader {
 
 	/**  魔数  */
-	private byte magic;
+	private byte  magic;
 	/**  消息类型  */
-	private byte msgType;
+	private byte  msgType;
 	/**  保留字  */
 	private short reserve;
 	/**  序列号  */
 	private short sn;
 	/**  长度  */
-	private int len;
+	private int   len;
 
 }

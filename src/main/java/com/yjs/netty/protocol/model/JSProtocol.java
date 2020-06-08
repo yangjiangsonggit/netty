@@ -14,8 +14,8 @@ import lombok.Data;
 @Data
 public class JSProtocol {
 
-	private ProtocolHeader protocolHeader = new ProtocolHeader();
+	private ProtocolHeader protocolHeader;
 
-	private String body;
+	private String 		   body;
 
 }
