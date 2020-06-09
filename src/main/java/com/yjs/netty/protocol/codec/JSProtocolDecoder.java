@@ -70,7 +70,7 @@ public class JSProtocolDecoder extends LengthFieldBasedFrameDecoder {
 		}
 
 		ByteBuf bodyBuf = decodeBuf.readBytes(len);
-		String body = decodeBuf.toString(CharsetUtil.UTF_8);
+		String body = bodyBuf.toString(CharsetUtil.UTF_8);
 
 		JSProtocol jsProtocol = new JSProtocol();
 		jsProtocol.setProtocolHeader(protocolHeader);

@@ -1,5 +1,7 @@
 package com.yjs.netty.echo;
 
+import com.yjs.netty.protocol.JSServer;
+import com.yjs.netty.util.CommonUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -41,17 +43,7 @@ public class EchoServer {
 						}
 					});
 
-			ChannelFuture future = serverBootstrap.bind(PORT).sync();
-			future.addListener(new ChannelFutureListener() {
-				@Override
-				public void operationComplete(ChannelFuture future) throws Exception {
-					if (future.isSuccess()) {
-						System.out.println("服务端绑定成功");
-					} else {
-						future.cause().printStackTrace();
-					}
-				}
-			});
+			ChannelFuture future = CommonUtil.sync(serverBootstrap, PORT);
 			log.info("服务端已经启动,端口:{}",PORT);
 
 			future.channel().closeFuture().sync();

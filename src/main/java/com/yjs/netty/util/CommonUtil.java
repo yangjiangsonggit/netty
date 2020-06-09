@@ -1,6 +1,9 @@
 package com.yjs.netty.util;
 
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 
 import java.nio.charset.Charset;
 
@@ -28,5 +31,20 @@ public final class CommonUtil {
 			str = new String(bytes, 0, buf.readableBytes(), Charset.defaultCharset());
 		}
 		return str;
+	}
+
+	public static ChannelFuture sync(ServerBootstrap serverBootstrap, int port) throws InterruptedException {
+		ChannelFuture future = serverBootstrap.bind(port).sync();
+		future.addListener(new ChannelFutureListener() {
+			@Override
+			public void operationComplete(ChannelFuture future) throws Exception {
+				if (future.isSuccess()) {
+					System.out.println("服务端绑定成功");
+				} else {
+					future.cause().printStackTrace();
+				}
+			}
+		});
+		return future;
 	}
 }
