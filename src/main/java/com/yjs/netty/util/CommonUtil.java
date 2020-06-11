@@ -9,7 +9,7 @@ import java.nio.charset.Charset;
 
 /**
  * <pre>
- *
+ *		通用工具类
  * </pre>
  *
  * @author yangjs
