@@ -5,6 +5,7 @@ import com.yjs.netty.util.CommonUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -40,6 +41,7 @@ public class ChatServer {
 			ServerBootstrap serverBootstrap = new ServerBootstrap();
 			serverBootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
+					.childOption(ChannelOption.SO_KEEPALIVE, true)
 					.childHandler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						protected void initChannel(SocketChannel ch) throws Exception {
@@ -52,7 +54,7 @@ public class ChatServer {
 							pipeline.addLast("httpRequestHandler", new HttpRequestHandler(WS_URI));
 							//负责websocket握手以及控制帧（Close、Ping、Pong）的处理
 							pipeline.addLast("webSocketServerProtocolHandler", new WebSocketServerProtocolHandler(WS_URI));
-							pipeline.addLast("webSocketServerProtocolHandler", new TextWebSocketFrameHandler());
+							pipeline.addLast("textWebSocketFrameHandler", new TextWebSocketFrameHandler());
 
 						}
 					});
@@ -66,6 +68,7 @@ public class ChatServer {
 		} finally {
 			bossGroup.shutdownGracefully();
 			workerGroup.shutdownGracefully();
+			System.out.println("服务端已经关闭,端口:{}" + PORT);
 		}
 	}
 
