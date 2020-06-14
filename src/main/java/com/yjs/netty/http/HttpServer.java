@@ -29,7 +29,6 @@ public class HttpServer {
 
 	public static final int PORT = 8889;
 	public static final int MAX_CONTENT_LENGTH = 64 * 1024;
-	public static final String WS_URI = "/ws";
 
 	public static void main(String[] args) {
 

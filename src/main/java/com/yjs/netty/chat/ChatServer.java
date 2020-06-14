@@ -13,7 +13,13 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.handler.stream.ChunkedWriteHandler;
+
+import javax.net.ssl.SSLEngine;
 
 /**
  * <pre>
@@ -30,6 +36,7 @@ public class ChatServer {
 	public static final int PORT = 8890;
 	public static final int MAX_CONTENT_LENGTH = 64 * 1024 * 1024;
 	public static final String WS_URI = "/ws";
+//	public static SslContext sslContext;
 
 	public static void main(String[] args) {
 
@@ -38,6 +45,9 @@ public class ChatServer {
 		NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
 		try {
+			SelfSignedCertificate cert = new SelfSignedCertificate();
+//			sslContext = SslContextBuilder.forServer(cert.certificate(), cert.privateKey()).build();
+
 			ServerBootstrap serverBootstrap = new ServerBootstrap();
 			serverBootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
@@ -47,6 +57,9 @@ public class ChatServer {
 						@Override
 						protected void initChannel(SocketChannel ch) throws Exception {
 							ChannelPipeline pipeline = ch.pipeline();
+//							SSLEngine sslEngine = sslContext.newEngine(ch.alloc());
+//							sslEngine.setUseClientMode(false);
+//							pipeline.addLast("sslHandler", new SslHandler(sslEngine));
 							pipeline.addLast("httpServerCodec", new HttpServerCodec());
 							//大数据流支持
 							pipeline.addLast("chunkedWriteHandler", new ChunkedWriteHandler());
