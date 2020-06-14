@@ -28,7 +28,7 @@ public class ChatServer {
 
 
 	public static final int PORT = 8890;
-	public static final int MAX_CONTENT_LENGTH = 64 * 1024;
+	public static final int MAX_CONTENT_LENGTH = 64 * 1024 * 1024;
 	public static final String WS_URI = "/ws";
 
 	public static void main(String[] args) {
@@ -42,6 +42,7 @@ public class ChatServer {
 			serverBootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
 					.childOption(ChannelOption.SO_KEEPALIVE, true)
+					.childOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000)
 					.childHandler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						protected void initChannel(SocketChannel ch) throws Exception {

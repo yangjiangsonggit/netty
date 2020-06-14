@@ -30,14 +30,10 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 	public static final String CHAT_CLIENT_HTML = "client_index.html";
 
 	static {
-//		URL location = HttpRequestHandler.class.getProtectionDomain().getCodeSource().getLocation();
+		URL location = HttpRequestHandler.class.getProtectionDomain().getCodeSource().getLocation();
 		try {
-//			InputStream resourceAsStream = HttpRequestHandler.getClass().getResourceAsStream(CHAT_CLIENT_HTML);
-//
-//			String path = location.toURI() + CHAT_CLIENT_HTML;
-//			path = !path.contains("file:") ? path : path.substring(5);
-
-		String path = "/Users/yjs/code/GitHub/netty/src/main/resources/" + CHAT_CLIENT_HTML;
+			String path = location.toURI() + CHAT_CLIENT_HTML;
+			path = !path.contains("file:") ? path : path.substring(5);
 		clientIndex = new File(path);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -60,22 +56,29 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 				send100Continue(ctx);
 			}
 
-//			if (Objects.isNull(clientIndex)) {
-//				clientIndex = new File(this.getClass().getClassLoader().getResource(CHAT_CLIENT_HTML).getPath());
-//			}
+			if (clientIndex.isHidden() || !clientIndex.exists()) {
+				System.out.println("文件不存在");
+				return;
+			}
+			if (!clientIndex.isFile()) {
+				System.out.println("禁止访问");
+				return;
+			}
 
 			RandomAccessFile indexFile = new RandomAccessFile(clientIndex, MODE);
-			DefaultFullHttpResponse response = new DefaultFullHttpResponse(request.protocolVersion(),
+			long length = indexFile.length();
+			HttpResponse response = new DefaultHttpResponse(request.protocolVersion(),
 					HttpResponseStatus.OK);
 			response.headers().set(HttpHeaderNames.CONTENT_TYPE,"text/html; charset=UTF-8");
 			boolean keepAlive = HttpUtil.isKeepAlive(request);
 			if (keepAlive) {
-				response.headers().set(HttpHeaderNames.CONTENT_LENGTH, indexFile.length());
+				response.headers().set(HttpHeaderNames.CONTENT_LENGTH, length);
 				response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
 			}
 			ctx.write(response);
+
 			if (ctx.pipeline().get(SslHandler.class) == null) {
-				ctx.write(new DefaultFileRegion(indexFile.getChannel(), 0, indexFile.length()));
+				ctx.write(new DefaultFileRegion(indexFile.getChannel(), 0, length));
 			} else {
 				ctx.write(new ChunkedNioFile(indexFile.getChannel()));
 			}
@@ -83,8 +86,8 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 			if (!keepAlive) {
 				channelFuture.addListener(ChannelFutureListener.CLOSE);
 			}
-
 			indexFile.close();
+
 		}
 
 
