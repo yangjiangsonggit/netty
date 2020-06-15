@@ -18,6 +18,8 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Component;
 
 import javax.net.ssl.SSLEngine;
 
@@ -30,7 +32,8 @@ import javax.net.ssl.SSLEngine;
  * @version 1.0
  * @since 2020/6/13
  */
-public class ChatServer {
+@Component
+public class ChatServer implements InitializingBean {
 
 
 	public static final int PORT = 8890;
@@ -38,14 +41,14 @@ public class ChatServer {
 	public static final String WS_URI = "/ws";
 //	public static SslContext sslContext;
 
-	public static void main(String[] args) {
+	public void start() {
 
 
 		NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
 		NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
 		try {
-			SelfSignedCertificate cert = new SelfSignedCertificate();
+//			SelfSignedCertificate cert = new SelfSignedCertificate();
 //			sslContext = SslContextBuilder.forServer(cert.certificate(), cert.privateKey()).build();
 
 			ServerBootstrap serverBootstrap = new ServerBootstrap();
@@ -74,7 +77,7 @@ public class ChatServer {
 					});
 
 			ChannelFuture future = CommonUtil.sync(serverBootstrap, PORT);
-			System.out.println("服务端已经启动,端口:{}" + PORT);
+			System.out.println("服务端已经启动,端口:" + PORT);
 			future.channel().closeFuture().sync();
 
 		} catch (Exception e) {
@@ -82,10 +85,13 @@ public class ChatServer {
 		} finally {
 			bossGroup.shutdownGracefully();
 			workerGroup.shutdownGracefully();
-			System.out.println("服务端已经关闭,端口:{}" + PORT);
+			System.out.println("服务端已经关闭,端口:" + PORT);
 		}
 	}
 
 
-
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		start();
+	}
 }
