@@ -5,7 +5,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * <pre>
@@ -18,6 +21,8 @@ import java.nio.charset.Charset;
  */
 public final class CommonUtil {
 
+
+	public static final String UTF_8 = "utf-8";
 
 	public static String convertByteBufToString(ByteBuf buf) {
 		String str;
@@ -47,4 +52,15 @@ public final class CommonUtil {
 		});
 		return future;
 	}
+
+
+	public static ByteBuffer convertStringToByte(String content) throws UnsupportedEncodingException {
+		return ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_8));
+	}
+
+	public static String decode(ByteBuffer bb) {
+		Charset charset = StandardCharsets.UTF_8;
+		return charset.decode(bb).toString();
+	}
+
 }
