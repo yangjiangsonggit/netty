@@ -32,8 +32,7 @@ import javax.net.ssl.SSLEngine;
  * @version 1.0
  * @since 2020/6/13
  */
-@Component
-public class ChatServer implements InitializingBean {
+public class ChatServer {
 
 
 	public static final int PORT = 8890;
@@ -41,7 +40,7 @@ public class ChatServer implements InitializingBean {
 	public static final String WS_URI = "/ws";
 //	public static SslContext sslContext;
 
-	public void start() {
+	public static void start() {
 
 
 		NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -89,9 +88,7 @@ public class ChatServer implements InitializingBean {
 		}
 	}
 
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
+	public static void main(String[] args) {
 		start();
 	}
 }
